@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Page() {
   return (
-    <View className="flex flex-1">
+    <View className="flex flex-1 bg-white dark:bg-black/20">
       <Header />
       <Content />
       <Footer />
@@ -56,7 +56,7 @@ function Header() {
         <View className="flex flex-row gap-4 sm:gap-6">
           <Link
             className="text-md font-medium hover:underline web:underline-offset-4"
-            href="/"
+            href="/About"
           >
             About
           </Link>
