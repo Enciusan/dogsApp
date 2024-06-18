@@ -13,9 +13,19 @@
         {
           "origin": "https://n"
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": ["./assets/fonts/GreatMango.ttf"]
+        }
       ]
     ],
     "name": "dogsApp",
-    "slug": "dogsApp"
+    "slug": "dogsApp",
+    "ios": {
+      "bundleIdentifier": "com.anonymous.dogsApp",
+      "supportsTablet": true
+    }
   }
 }
