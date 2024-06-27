@@ -4,7 +4,7 @@ export default function LandingLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
         headerTitleStyle: { color: "#1b1b1b" },
         headerStyle: { backgroundColor: "#1b1b1b" },
       }}

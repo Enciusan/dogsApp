@@ -5,7 +5,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 export default function HomeScreen() {
   const bottomTabBarHeight = useBottomTabBarHeight();
   return (
-    <View className="h-screen bg-[#1b1b1b]" style={{ paddingBottom: bottomTabBarHeight }}>
+    <View className="h-screen bg-[#0E1514]" style={{ paddingBottom: bottomTabBarHeight }}>
       <ScrollView horizontal={false}>
         <View className="flex h-screen justify-center items-center w-full">
           <Text className="text-slate-300">Here is Home</Text>
