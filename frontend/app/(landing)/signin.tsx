@@ -25,9 +25,10 @@ export default function Auth() {
       email: email,
       password: password,
     });
-    router.replace("/(tabs)");
     if (error) {
       Alert.alert(error.message);
+    } else {
+      router.replace("/(tabs)");
     }
     setLoading(false);
   }

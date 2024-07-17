@@ -1,6 +1,7 @@
-import { Tabs } from "expo-router";
-import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
+import { Link, Stack, Tabs } from "expo-router";
+import { FontAwesome, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function TabLayout() {
   return (
@@ -8,9 +9,11 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: true,
         tabBarActiveTintColor: "#6ee7b7",
-        headerTitleStyle: { backgroundColor: "#0E1514", color: "#0E1514" },
-        headerStyle: { backgroundColor: "#0E1514", height: "7%" },
-        tabBarShowLabel: false,
+        headerTitleStyle: { backgroundColor: "#0E1514", color: "white", fontFamily: "GreatMango", fontSize: 24 },
+        headerTitleAlign: "left",
+        headerStyle: { backgroundColor: "#0E1514", shadowColor: "transparent" },
+        // headerTitle: () => <HeaderText className="text-slate-300 text-5xl "></HeaderText>,
+        // tabBarShowLabel: false,
         tabBarStyle: {
           position: "absolute",
           borderTopStartRadius: 20,
@@ -26,14 +29,28 @@ export default function TabLayout() {
         ),
       }}>
       <Tabs.Screen
-        name={"index"}
+        name={"Account"}
         options={{
-          tabBarIcon: ({ color }) => <FontAwesome5 name="home" size={28} color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
+          headerRight: () => (
+            <Link href={"/Settings"}>
+              <FontAwesome5 name="cog" size={24} color="white" />
+            </Link>
+          ),
+          headerRightContainerStyle: { paddingRight: 20 },
         }}
       />
       <Tabs.Screen
-        name={"account"}
-        options={{ tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} /> }}
+        name={"Dogs"}
+        options={{
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="dog" size={28} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name={"Chat"}
+        options={{
+          tabBarIcon: ({ color }) => <Ionicons name="chatbubble" size={28} color={color} />,
+        }}
       />
     </Tabs>
   );
