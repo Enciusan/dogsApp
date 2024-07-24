@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollView, Text, View } from "react-native";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
-export default function HomeScreen() {
+export default function DogScreen() {
   const bottomTabBarHeight = useBottomTabBarHeight();
   return (
     <View className="h-screen bg-[#0E1514]" style={{ paddingBottom: bottomTabBarHeight }}>

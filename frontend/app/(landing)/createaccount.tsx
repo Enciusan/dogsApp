@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollView, View } from "react-native";
 import { CustomText } from "../../components/CustomText";
 
-export default function LandingPage() {
+export default function CreatePage() {
   return (
     <View className="h-svh bg-[#0E1514]">
       <ScrollView horizontal={false}>

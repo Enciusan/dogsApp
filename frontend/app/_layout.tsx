@@ -3,6 +3,7 @@ import { Stack, useRouter } from "expo-router";
 import { Pressable } from "react-native";
 import React from "react";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { CustomText } from "../components/CustomText";
 
 export default function Layout() {
   const router = useRouter();
@@ -29,6 +30,24 @@ export default function Layout() {
         }}
       />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name={"Settings"}
+        options={{
+          presentation: "modal",
+          gestureEnabled: true,
+          headerStyle: { backgroundColor: "#0E1514" },
+          headerTitleStyle: { color: "white", fontFamily: "GreatMango", fontSize: 22 },
+          headerRight: () => {
+            return (
+              <Pressable onPress={() => router.back()}>
+                <CustomText type="semiBold" className="text-slate-100">
+                  Done
+                </CustomText>
+              </Pressable>
+            );
+          },
+        }}
+      />
     </Stack>
   );
 }
