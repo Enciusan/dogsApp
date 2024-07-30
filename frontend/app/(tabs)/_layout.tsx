@@ -52,6 +52,12 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Ionicons name="chatbubble" size={28} color={color} />,
         }}
       />
+      <Tabs.Screen
+        name={"EditProfile"}
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

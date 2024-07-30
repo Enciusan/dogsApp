@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Alert, Pressable, ScrollView } from "react-native";
-import { Button, Input } from "@rneui/themed";
+import React, { useEffect, useState } from "react";
+import { Alert, Button, Pressable, ScrollView, View } from "react-native";
+import { Input } from "@rneui/themed";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "../utils/supa";
 import { useRouter } from "expo-router";
 import { CustomText } from "./CustomText";
-import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import Avatar from "./Avatar";
 
 export default function Account({ session }: { session: Session }) {
@@ -113,21 +111,30 @@ export default function Account({ session }: { session: Session }) {
             onChangeText={(text) => setWebsite(text)}
           />
         </View>
-        {/*<View className="flex gap-5">*/}
-        {/*  <Avatar*/}
-        {/*    size={200}*/}
-        {/*    url={avatarUrl}*/}
-        {/*    onUpload={(url: string) => {*/}
-        {/*      setAvatarUrl(url);*/}
-        {/*      updateProfile({ username, website, avatar_url: url });*/}
-        {/*    }}*/}
-        {/*  />*/}
-        {/*</View>*/}
-        <View className="flex gap-5">
+        <View className="flex gap-5 mb-6">
           <View className="flex justify-center items-center bg-gray-50 py-2 overflow-hidden rounded-xl">
             <Pressable onPress={() => updateProfile({ username, website, avatar_url: avatarUrl })} disabled={loading}>
               <CustomText type={"bold"} className="text-lg w-screen text-center">
                 {loading ? "Loading ..." : "Update"}
+              </CustomText>
+            </Pressable>
+          </View>
+        </View>
+        <View className="flex gap-5">
+          <Avatar
+            size={150}
+            url={avatarUrl}
+            onUpload={(url: string) => {
+              setAvatarUrl(url);
+              updateProfile({ username, website, avatar_url: url });
+            }}
+          />
+        </View>
+        <View className="flex gap-5 justify-center items-center mt-3">
+          <View className="bg-slate-100 rounded-full w-2/4">
+            <Pressable onPress={() => router.navigate("/EditProfile")} disabled={loading}>
+              <CustomText type={"bold"} className="text-lg text-center">
+                Edit Profile
               </CustomText>
             </Pressable>
           </View>
