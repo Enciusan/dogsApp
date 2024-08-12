@@ -2,6 +2,7 @@ import { Link, Stack, Tabs } from "expo-router";
 import { FontAwesome, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { CustomText } from "../../components/CustomText";
 
 export default function TabLayout() {
   return (
@@ -56,6 +57,13 @@ export default function TabLayout() {
         name={"EditProfile"}
         options={{
           href: null,
+          tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
+          headerRight: () => (
+            <Link href={"/Account"}>
+              <CustomText className="text-slate-100 text-lg">Done</CustomText>
+            </Link>
+          ),
+          headerRightContainerStyle: { paddingRight: 20 },
         }}
       />
     </Tabs>

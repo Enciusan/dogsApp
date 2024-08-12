@@ -10,9 +10,8 @@ import Avatar from "./Avatar";
 export default function Account({ session }: { session: Session }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [username, setUsername] = useState("");
-  const [website, setWebsite] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [dogName, setDogName] = useState("");
 
   useEffect(() => {
     if (session) getProfile();
@@ -25,7 +24,7 @@ export default function Account({ session }: { session: Session }) {
 
       const { data, error, status } = await supabase
         .from("profiles")
-        .select(`username, website, avatar_url`)
+        .select(`avatar_url, dog_name`)
         .eq("id", session?.user.id)
         .single();
       if (error && status !== 406) {
@@ -33,9 +32,8 @@ export default function Account({ session }: { session: Session }) {
       }
 
       if (data) {
-        setUsername(data.username);
-        setWebsite(data.website);
         setAvatarUrl(data.avatar_url);
+        setDogName(data.dog_name);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -46,23 +44,13 @@ export default function Account({ session }: { session: Session }) {
     }
   }
 
-  async function updateProfile({
-    username,
-    website,
-    avatar_url,
-  }: {
-    username: string;
-    website: string;
-    avatar_url: string;
-  }) {
+  async function updateProfile({ avatar_url }: { avatar_url: string }) {
     try {
       setLoading(true);
       if (!session?.user) throw new Error("No user on the session!");
 
       const updates = {
         id: session?.user.id,
-        username,
-        website,
         avatar_url,
         updated_at: new Date(),
       };
@@ -84,51 +72,20 @@ export default function Account({ session }: { session: Session }) {
   return (
     <View className="bg-[#0E1514] justify-center p-10 h-screen text-slate-300">
       <ScrollView horizontal={false}>
-        <View className="py-2">
-          <Input
-            label="Email"
-            value={session?.user?.email}
-            disabled
-            leftIcon={{ type: "font-awesome", name: "envelope", color: "white", size: 18 }}
-            className="!text-slate-300"
-          />
-        </View>
-        <View className="py-2">
-          <Input
-            label="Username"
-            leftIcon={{ type: "font-awesome", name: "user", color: "white", size: 18 }}
-            className="!text-slate-300"
-            value={username || ""}
-            onChangeText={(text) => setUsername(text)}
-          />
-        </View>
-        <View className="py-2">
-          <Input
-            label="Website"
-            leftIcon={{ type: "font-awesome", name: "globe", color: "white", size: 18 }}
-            className="!text-slate-300"
-            value={website || ""}
-            onChangeText={(text) => setWebsite(text)}
-          />
-        </View>
-        <View className="flex gap-5 mb-6">
-          <View className="flex justify-center items-center bg-gray-50 py-2 overflow-hidden rounded-xl">
-            <Pressable onPress={() => updateProfile({ username, website, avatar_url: avatarUrl })} disabled={loading}>
-              <CustomText type={"bold"} className="text-lg w-screen text-center">
-                {loading ? "Loading ..." : "Update"}
-              </CustomText>
-            </Pressable>
-          </View>
-        </View>
         <View className="flex gap-5">
           <Avatar
             size={150}
             url={avatarUrl}
             onUpload={(url: string) => {
               setAvatarUrl(url);
-              updateProfile({ username, website, avatar_url: url });
+              updateProfile({ avatar_url: url });
             }}
           />
+        </View>
+        <View className="flex gap-5 justify-center items-center mt-3">
+          <CustomText type={"bold"} className="text-lg text-center text-slate-200">
+            {dogName}
+          </CustomText>
         </View>
         <View className="flex gap-5 justify-center items-center mt-3">
           <View className="bg-slate-100 rounded-full w-2/4">
