@@ -5,10 +5,16 @@ import React, { useEffect, useState } from "react";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "../../utils/supa";
 import Toast from "react-native-toast-message";
+import { useAccountStore } from "../../store/account";
 
 export default function EditProfile() {
   const [session, setSession] = useState<Session | null>(null);
+  const { accountInformation, updateAccountInformation, updateIsChanged } = useAccountStore((state) => state);
+  const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState("");
+  const [dogName, setDogName] = useState("");
 
+  console.log("edit Profile", accountInformation);
   const successToastShow = () => {
     Toast.show({
       type: "success",
@@ -39,10 +45,6 @@ export default function EditProfile() {
     });
   }, []);
 
-  const [loading, setLoading] = useState(true);
-  const [username, setUsername] = useState("");
-  const [dogName, setDogName] = useState("");
-
   useEffect(() => {
     if (session) getProfile();
   }, [session]);
@@ -50,7 +52,10 @@ export default function EditProfile() {
   async function getProfile() {
     try {
       setLoading(true);
-      if (!session?.user) throw new Error("No user on the session!");
+      if (!session?.user) {
+        console.log("No user on the session! edit");
+        throw new Error("No user on the session!");
+      }
 
       const { data, error, status } = await supabase
         .from("profiles")
@@ -64,6 +69,7 @@ export default function EditProfile() {
       if (data) {
         setUsername(data.username);
         setDogName(data.dog_name);
+        updateAccountInformation({ ...accountInformation, username: data.username, dogName: data.dog_name });
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -77,6 +83,7 @@ export default function EditProfile() {
   async function updateProfile({ username, dog_name }: { username: string; dog_name: string }) {
     try {
       setLoading(true);
+
       if (!session?.user) throw new Error("No user on the session!");
 
       const updates = {
@@ -93,6 +100,7 @@ export default function EditProfile() {
         throw error;
       } else {
         successToastShow();
+        updateAccountInformation({ ...accountInformation, username: username, dogName: dog_name });
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -104,7 +112,7 @@ export default function EditProfile() {
   }
 
   return (
-    <View className="bg-[#0E1514] justify-center p-5 h-screen text-slate-300">
+    <View className="bg-[#0E1514] justify-center p-2 h-screen text-slate-300">
       <ScrollView horizontal={false}>
         <View className="py-2">
           <Input
