@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { StyleSheet, View, Alert, Image, Button } from "react-native";
+import { StyleSheet, View, Alert, Image, Pressable } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { supabase } from "../utils/supa";
+import { Entypo, FontAwesome } from "@expo/vector-icons";
 
 interface Props {
   size: number;
@@ -87,18 +88,27 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
   }
 
   return (
-    <View>
+    <View className="flex items-center justify-center ">
       {avatarUrl ? (
-        <Image
-          source={{ uri: avatarUrl }}
-          accessibilityLabel="Avatar"
-          style={[avatarSize, styles.avatar, styles.image]}
-        />
+        <View className="!rounded-full !border-4 !border-white/20 p-0.5 !overflow-hidden">
+          <Image source={{ uri: avatarUrl }} className="!rounded-full" style={[avatarSize, styles.image]} />
+        </View>
       ) : (
         <View style={[avatarSize, styles.avatar, styles.noImage]} />
       )}
-      <View>
-        <Button title={uploading ? "Uploading ..." : "Upload"} onPress={uploadAvatar} disabled={uploading} />
+      <View className="absolute bottom-28 right-[7rem] py-3">
+        <Pressable
+          onPress={uploadAvatar}
+          disabled={uploading}
+          className=" flex flex-row gap-1 border-2 border-[#0E1514] rounded-full">
+          <View className="w-10 h-10 bg-[#1c2a28] flex justify-center items-center rounded-full ">
+            {uploading ? (
+              <Entypo name="dots-three-horizontal" size={16} color="white" />
+            ) : (
+              <FontAwesome name="pencil" size={16} color="white" />
+            )}
+          </View>
+        </Pressable>
       </View>
     </View>
   );
@@ -106,19 +116,16 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
 
 const styles = StyleSheet.create({
   avatar: {
-    borderRadius: 5,
     overflow: "hidden",
-    maxWidth: "100%",
   },
   image: {
-    objectFit: "cover",
     paddingTop: 0,
   },
   noImage: {
     backgroundColor: "#333",
     borderWidth: 1,
     borderStyle: "solid",
-    borderColor: "rgb(200, 200, 200)",
-    borderRadius: 5,
+    borderColor: "rgb(255, 255, 255, 0.2)",
+    borderRadius: 9999,
   },
 });
