@@ -39,9 +39,8 @@ export default function ChatScreen() {
     if (ws && inputText.trim() !== "") {
       try {
         const message = {
-          userId: "2236c152-f3e3-495b-ae2b-c771cfa0f7ec",
+          user_id: "2236c152-f3e3-495b-ae2b-c771cfa0f7ec",
           content: inputText,
-          chatRoomId: 1,
         };
         console.log("Sending message:", message);
         ws.send(JSON.stringify(message));
