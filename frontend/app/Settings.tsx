@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { supabase } from "../utils/supa";
 import { CustomText } from "../components/CustomText";
 import { useRouter } from "expo-router";
@@ -14,6 +14,7 @@ export default function Settings() {
             <Pressable
               onPress={() => {
                 supabase.auth.signOut();
+                router.back();
                 router.push("/");
               }}>
               <CustomText type={"bold"} className="flex text-lg w-[90vw] text-center items-center justify-center">

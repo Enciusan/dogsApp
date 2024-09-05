@@ -28,7 +28,7 @@ export default function Auth() {
     if (error) {
       Alert.alert(error.message);
     } else {
-      router.replace("/(tabs)");
+      router.replace("/(tabs)/Dogs");
     }
     setLoading(false);
   }
