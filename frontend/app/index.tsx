@@ -5,8 +5,6 @@ import { Session } from "@supabase/supabase-js";
 import { supabase } from "../utils/supa";
 import LandingPage from "./(landing)";
 import Toast from "react-native-toast-message";
-import { ConnectionProvider } from "../utils/ConnectionProvider";
-import { ClusterProvider } from "../components/cluster-data-access";
 
 export default function Index() {
   const [session, setSession] = useState<Session | null>(null);
@@ -21,23 +19,19 @@ export default function Index() {
     });
   }, []);
 
-  if (session && session.user) {
-    return (
-      <>
-        <ClusterProvider>
-          <ConnectionProvider config={{ commitment: "processed" }}>
-            <Redirect href={"(tabs)/Dogs"} />
-            <Toast />
-          </ConnectionProvider>
-        </ClusterProvider>
-      </>
-    );
-  } else {
-    return (
-      <View className="h-screen bg-[#0E1514] flex justify-end items-center pb-40 gap-4">
-        <LandingPage />
-        <Toast />
-      </View>
-    );
-  }
+  return (
+    <>
+      {session && session.user ? (
+        <>
+          <Redirect href={"(tabs)/Dogs"} />
+          <Toast />
+        </>
+      ) : (
+        <View className="h-screen bg-[#0E1514] flex justify-end items-center pb-40 gap-4">
+          <LandingPage />
+          <Toast />
+        </View>
+      )}
+    </>
+  );
 }

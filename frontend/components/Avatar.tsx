@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { StyleSheet, View, Alert, Image, Pressable } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { supabase } from "../utils/supa";
 import { Entypo, FontAwesome } from "@expo/vector-icons";
+import { useDownloadImage } from "../utils/hooks";
 
 interface Props {
   size: number;
@@ -12,32 +13,8 @@ interface Props {
 
 export default function Avatar({ url, size = 150, onUpload }: Props) {
   const [uploading, setUploading] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const { avatarUrl } = useDownloadImage(url);
   const avatarSize = { height: size, width: size };
-
-  useEffect(() => {
-    if (url) downloadImage(url);
-  }, [url]);
-
-  async function downloadImage(path: string) {
-    try {
-      const { data, error } = await supabase.storage.from("avatars").download(path);
-
-      if (error) {
-        throw error;
-      }
-
-      const fr = new FileReader();
-      fr.readAsDataURL(data);
-      fr.onload = () => {
-        setAvatarUrl(fr.result as string);
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        console.log("Error downloading image: ", error.message);
-      }
-    }
-  }
 
   async function uploadAvatar() {
     try {
