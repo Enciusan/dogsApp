@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Pressable, SafeAreaView, View } from "react-native";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
+import { Pressable, SafeAreaView, ScrollView, View } from "react-native";
 import { useAccountStore } from "../../store/account";
 import { getProfile } from "../../utils/function";
 import { supabase } from "../../utils/supa";
@@ -10,11 +10,12 @@ import { UserType } from "../../types/account";
 
 export default function DogScreen() {
   const [session, setSession] = useState<Session | null>(null);
-  const { accountInformation, updateAccountInformation } = useAccountStore((state) => state);
+  // const { accountInformation, updateAccountInformation } = useAccountStore((state) => state);
   const [isAccountInformationLoaded, setIsAccountInformationLoaded] = useState<boolean>(false);
   const [dislikePressed, setDislikePressed] = useState<boolean>(false);
   const [likePressed, setLikePressed] = useState<boolean>(false);
-  const [appUsers, setAppUsers] = useState<Array<Record<any, UserType>>>([]);
+  const [appUsers, setAppUsers] = useState<Array<Record<any, any>>>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -24,26 +25,13 @@ export default function DogScreen() {
     supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
-    getAllAccounts();
   }, []);
 
   useEffect(() => {
-    (async () => {
-      if (session) {
-        const userProfile = await getProfile(session);
-        updateAccountInformation({
-          username: userProfile.username,
-          avatarUrl: userProfile.avatar_url,
-          dogName: userProfile.dog_name,
-        });
-      }
-      console.log("App Users", appUsers);
-    })();
+    getAllAccounts()
+      .then((r) => r)
+      .catch((e) => e);
   }, [session]);
-
-  useEffect(() => {
-    handleAccountInformation();
-  }, [accountInformation.avatarUrl]);
 
   const handleDislikePressed = () => {
     setDislikePressed(true);
@@ -53,53 +41,46 @@ export default function DogScreen() {
     setLikePressed(true);
   };
 
-  const getAllAccounts = () => {
-    console.log("Session", session?.user?.id);
-    supabase
-      .from("profiles")
-      .select("*")
-      .neq("id", session?.user?.id)
-      .then(({ data, error }) => {
-        if (error) {
-          console.error(error);
-        } else {
-          console.log("Data", data);
-          setAppUsers(data);
-        }
-      });
-  };
-
-  const handleAccountInformation = () => {
-    if (
-      accountInformation.avatarUrl === "" ||
-      accountInformation.dogName === "" ||
-      accountInformation.username === ""
-    ) {
-      setIsAccountInformationLoaded(false);
-    } else {
-      setIsAccountInformationLoaded(true);
+  const getAllAccounts = useCallback(async () => {
+    setIsAccountInformationLoaded(false);
+    if (session) {
+      await supabase
+        .from("profiles")
+        .select("*")
+        .neq("id", session?.user?.id)
+        .then(({ data, error }) => {
+          if (error) {
+            console.error("error fetching", error);
+          } else {
+            console.log("Fetched accounts:", data);
+            setAppUsers(data);
+            setIsAccountInformationLoaded(true);
+          }
+        });
     }
-  };
+  }, [session]);
 
-  // console.log("Dogs", accountInformation);
   return (
     <SafeAreaView className="h-screen bg-[#0E1514]">
-      <View className="h-28"></View>
+      <View className="h-20"></View>
       {isAccountInformationLoaded && (
         <>
-          {appUsers.map((user) => {
-            return (
-              <SwipeableCard
-                url={user.avatar_url}
-                dislikePressed={dislikePressed}
-                likePressed={likePressed}
-                setLikePressed={setLikePressed}
-                setDislikePressed={setDislikePressed}
-                username={user.username}
-                dogName={user.dog_name}
-              />
-            );
-          })}
+          {appUsers &&
+            appUsers.map((user, id) => {
+              return (
+                <Fragment key={id}>
+                  <SwipeableCard
+                    url={user.avatar_url}
+                    dislikePressed={dislikePressed}
+                    likePressed={likePressed}
+                    setLikePressed={setLikePressed}
+                    setDislikePressed={setDislikePressed}
+                    username={user.username}
+                    dogName={user.dog_name}
+                  />
+                </Fragment>
+              );
+            })}
         </>
       )}
       <View className="flex flex-row justify-center items-center gap-10 pt-10">

@@ -4,6 +4,7 @@ import { useDownloadImage } from "../utils/hooks";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { CustomText } from "./CustomText";
+import { UserType } from "../types/account";
 
 type Props = {
   url: string | null;
@@ -13,6 +14,7 @@ type Props = {
   setDislikePressed: (value: boolean) => void;
   username: string;
   dogName: string;
+  // profileInfo: UserType;
 };
 
 const mobileWidth = Dimensions.get("window").width;
@@ -26,6 +28,7 @@ export default function SwipeableCard({
   dogName,
   username,
 }: Props) {
+  console.log("URL", url);
   const { avatarUrl } = useDownloadImage(url);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -55,29 +58,31 @@ export default function SwipeableCard({
 
   // @ts-ignore
   return (
-    <View className="flex items-center justify-center ">
-      {avatarUrl ? (
-        <>
-          <Animated.View className="h-[500px] w-3/4 border-2 rounded-xl border-slate-500" style={[animatedStyles]}>
-            <LinearGradient
-              colors={["transparent", "#0E1514"]}
-              style={{ width: "100%", height: 497, borderRadius: 10 }}
-            />
-            <Image
-              source={{ uri: avatarUrl }}
-              style={{ width: "100%", height: 497 }}
-              className="rounded-xl absolute !-z-10"
-            />
-            <CustomText type={"semiBold"} className="absolute bottom-6 left-5 text-lg text-center !text-slate-200">
-              I&apos;m {dogName} and my owner is {username}
-            </CustomText>
-          </Animated.View>
-        </>
-      ) : (
-        <View>
-          <Text className="text-slate-300">Loading...</Text>
-        </View>
-      )}
+    <View className="flex ">
+      <View className="absolute w-full items-center justify-center">
+        {avatarUrl ? (
+          <>
+            <Animated.View className="h-[500px] w-3/4 border-2 rounded-xl border-slate-500" style={[animatedStyles]}>
+              <LinearGradient
+                colors={["transparent", "#0E1514"]}
+                style={{ width: "100%", height: 497, borderRadius: 10 }}
+              />
+              <Image
+                source={{ uri: avatarUrl }}
+                style={{ width: "100%", height: 497 }}
+                className="rounded-xl absolute !-z-10"
+              />
+              <CustomText type={"semiBold"} className="absolute bottom-6 left-5 text-lg text-center !text-slate-200">
+                I&apos;m {dogName} and my owner is {username}
+              </CustomText>
+            </Animated.View>
+          </>
+        ) : (
+          <View>
+            <Text className="text-slate-300">Loading...</Text>
+          </View>
+        )}
+      </View>
     </View>
   );
 }
