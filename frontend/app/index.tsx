@@ -19,19 +19,19 @@ export default function Index() {
     });
   }, []);
 
-  if (session && session.user) {
-    return (
-      <>
-        <Redirect href={"(tabs)/Dogs"} />
-        <Toast />
-      </>
-    );
-  } else {
-    return (
-      <View className="h-screen bg-[#0E1514] flex justify-end items-center pb-40 gap-4">
-        <LandingPage />
-        <Toast />
-      </View>
-    );
-  }
+  return (
+    <>
+      {session && session.user ? (
+        <>
+          <Redirect href={"(tabs)/Dogs"} />
+          <Toast />
+        </>
+      ) : (
+        <View className="h-screen bg-[#0E1514] flex justify-end items-center pb-40 gap-4">
+          <LandingPage />
+          <Toast />
+        </View>
+      )}
+    </>
+  );
 }
