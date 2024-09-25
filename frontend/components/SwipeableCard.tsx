@@ -1,88 +1,70 @@
-import { Dimensions, Image, Pressable, Text, View } from "react-native";
+import { Dimensions, Image, Text, View } from "react-native";
 import React from "react";
 import { useDownloadImage } from "../utils/hooks";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { CustomText } from "./CustomText";
-import { UserType } from "../types/account";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import HeaderText from "./HeaderText";
 
 type Props = {
   url: string | null;
-  likePressed: boolean;
-  setLikePressed: (value: boolean) => void;
-  dislikePressed: boolean;
-  setDislikePressed: (value: boolean) => void;
   username: string;
   dogName: string;
-  // profileInfo: UserType;
+  onSwipe: (direction: "left" | "right") => void;
 };
 
-const mobileWidth = Dimensions.get("window").width;
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.1;
 
-export default function SwipeableCard({
-  url,
-  dislikePressed,
-  setDislikePressed,
-  likePressed,
-  setLikePressed,
-  dogName,
-  username,
-}: Props) {
-  console.log("URL", url);
+export default function SwipeableCard({ url, onSwipe, dogName, username }: Props) {
   const { avatarUrl } = useDownloadImage(url);
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
+  const translateX = useSharedValue(1);
 
-  const handleLikePressed = () => {
-    translateX.value = withTiming(mobileWidth, { duration: 1500 });
-    setTimeout(() => {
-      setLikePressed(false);
-    }, 1500);
-  };
+  const panGesture = Gesture.Pan()
+    .onChange((event) => {
+      translateX.value = event.translationX;
+    })
+    .onEnd(() => {
+      if (Math.abs(translateX.value) > SWIPE_THRESHOLD) {
+        translateX.value = withSpring(Math.sign(translateX.value) * SCREEN_WIDTH + 50, {}, () =>
+          runOnJS(onSwipe)(translateX.value > 0 ? "right" : "left")
+        );
+      } else {
+        translateX.value = withSpring(0);
+      }
+    });
 
-  const handleDislikePressed = () => {
-    translateX.value = withTiming(-mobileWidth, { duration: 1500 });
-    setTimeout(() => {
-      setDislikePressed(false);
-    }, 1500);
-  };
-
-  if (dislikePressed) {
-    handleDislikePressed();
-  } else if (likePressed) {
-    handleLikePressed();
-  }
-  const animatedStyles = useAnimatedStyle(() => ({
-    transform: [{ translateX: withSpring(translateX.value * 2) }],
+  const cardStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }, { rotate: `${(translateX.value / SCREEN_WIDTH) * 15}deg` }] as any,
   }));
 
   // @ts-ignore
   return (
-    <View className="flex ">
-      <View className="absolute w-full items-center justify-center">
+    <GestureDetector gesture={panGesture}>
+      <Animated.View
+        className="absolute h-[550px] w-5/6 rounded-xl overflow-hidden shadow-lg border-2 border-[#0A2514]"
+        style={cardStyle}>
         {avatarUrl ? (
-          <>
-            <Animated.View className="h-[500px] w-3/4 border-2 rounded-xl border-slate-500" style={[animatedStyles]}>
-              <LinearGradient
-                colors={["transparent", "#0E1514"]}
-                style={{ width: "100%", height: 497, borderRadius: 10 }}
-              />
-              <Image
-                source={{ uri: avatarUrl }}
-                style={{ width: "100%", height: 497 }}
-                className="rounded-xl absolute !-z-10"
-              />
-              <CustomText type={"semiBold"} className="absolute bottom-6 left-5 text-lg text-center !text-slate-200">
-                I&apos;m {dogName} and my owner is {username}
-              </CustomText>
-            </Animated.View>
-          </>
+          <Image source={{ uri: avatarUrl }} className="w-full h-full absolute" />
         ) : (
-          <View>
-            <Text className="text-slate-300">Loading...</Text>
+          <View className="flex-1 justify-center items-center bg-gray-200">
+            <Text className="text-gray-500">Loading...</Text>
           </View>
         )}
-      </View>
-    </View>
+        <LinearGradient
+          colors={["transparent", "#0E1514"]}
+          style={{ height: "100%", width: "100%", position: "absolute", top: 0, left: 0 }}
+          locations={[0.65, 1]}
+        />
+        <View className="flex justify-end items-start h-full">
+          <HeaderText className="text-3xl text-center text-emerald-300 !z-30 pb-12 pl-5">{dogName}</HeaderText>
+        </View>
+
+        <CustomText type="semiBold" className="absolute bottom-6 left-5 text-lg text-center text-slate-300 z-20">
+          I'm {dogName} and my owner is {username}
+        </CustomText>
+      </Animated.View>
+    </GestureDetector>
   );
 }

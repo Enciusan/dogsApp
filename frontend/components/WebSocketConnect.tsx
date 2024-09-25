@@ -5,7 +5,7 @@ const WebSocketComponent = ({ sessionId, roomId, userId }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isConnected, setIsConnected] = useState(false);
-  const serveWSUrl = `ws://192.168.100.21:8080/ws?sessionId=${sessionId}`;
+  const serveWSUrl = `ws://192.168.100.67:8080/ws?sessionId=${sessionId}`;
   const webSocket = useRef(null);
 
   useEffect(() => {
@@ -73,7 +73,7 @@ const WebSocketComponent = ({ sessionId, roomId, userId }) => {
         value={inputMessage}
         onChangeText={setInputMessage}
         placeholder="Type a message..."
-        className="text-slate-300"
+        className="!text-slate-300"
       />
       <Button title="Send" onPress={() => sendMessage()} disabled={!isConnected} />
     </View>
