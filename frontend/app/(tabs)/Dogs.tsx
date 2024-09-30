@@ -4,14 +4,16 @@ import { supabase } from "../../utils/supa";
 import { Session } from "@supabase/supabase-js";
 import SwipeableCard from "../../components/SwipeableCard";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { extractSessionId } from "utils/function";
 
 export default function DogScreen() {
   const [session, setSession] = useState<Session | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [isAccountInformationLoaded, setIsAccountInformationLoaded] = useState<boolean>(false);
   const [appUsers, setAppUsers] = useState<Array<Record<any, any>>>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isWSConnected, setIsWSConnected] = useState<boolean>(false);
-  const serveWSUrl = `ws://192.168.100.67:8080/ws?sessionId=39fba295-c9a3-41d8-be6b-191838057e3d`;
+  const serveWSUrl = `ws://192.168.100.67:8080/ws?sessionId=${sessionId}`;
   const webSocket = useRef(null);
   // console.log("session", session);
 
@@ -35,11 +37,15 @@ export default function DogScreen() {
     getAllAccounts()
       .then((r) => r)
       .catch((e) => e);
+
+    setSessionId(extractSessionId(session));
   }, [session]);
 
   useEffect(() => {
-    if (!webSocket.current) {
+    if (!webSocket.current && sessionId !== null && sessionId !== undefined) {
       webSocket.current = new WebSocket(serveWSUrl);
+      console.log("WebSocket URL:", serveWSUrl);
+      
 
       webSocket.current.onopen = () => {
         console.log("WebSocket Connected");
@@ -61,7 +67,7 @@ export default function DogScreen() {
         webSocket.current.close();
       }
     };
-  }, [webSocket]);
+  }, [webSocket, sessionId]);
 
   const getAllAccounts = useCallback(async () => {
     setIsAccountInformationLoaded(false);
@@ -114,14 +120,15 @@ export default function DogScreen() {
       console.groupEnd();
       if (webSocket) {
         const message = {
-          type: "create_match",
-          createMsg: {
-            user1Id: user1Id,
-            user2Id: user2Id,
-            roomName: username,
+          type: "like_person",
+          content: {
+            likedUserId: user2Id,
+            roomName: "Test",
+            action: "like",
           },
+          
         };
-        console.log("Sending message:", message);
+        console.log("Sending message:", JSON.stringify(message));
         webSocket.current.send(JSON.stringify(message));
       }
     },
@@ -150,7 +157,7 @@ export default function DogScreen() {
             <FontAwesome name="close" size={32} color="#f87171" />
           </View>
         </Pressable>
-        <Pressable onPress={() => handleSwipe("right", session.user.id, currentProfile.id, `${session}-${currentProfile.username}`)}>
+        <Pressable onPress={() => handleSwipe("right", session.user.id, currentProfile.id, `${currentProfile.username}`)}>
           <View className="w-16 h-16 rounded-full bg-[#263b44] flex justify-center items-center">
             <AntDesign name="heart" size={32} color="#34d399" />
           </View>

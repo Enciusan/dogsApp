@@ -56,7 +56,9 @@ export const extractSessionId = (session: Session | null): string | undefined =>
     try {
       const sessionTokenParts = session.access_token.split(".");
       if (sessionTokenParts.length >= 2) {
-        const token = JSON.parse(Buffer.from(sessionTokenParts[1], "base64").toString("ascii"));
+        const payload = sessionTokenParts[1];
+        const decodedPayload = atob(payload);
+        const token = JSON.parse(decodedPayload);
         return token.session_id;
       }
     } catch {

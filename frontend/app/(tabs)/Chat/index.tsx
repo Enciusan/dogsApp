@@ -78,7 +78,7 @@ export default function ChatScreen() {
         <Text className="text-slate-300">{sessionId}</Text>
         <WebSocketComponent
           userId={session?.user.id}
-          sessionId={"1c7856bd-4ee9-40dd-aac3-a27849030430"}
+          sessionId={"826eeb2d-9f92-4adb-872e-65ea22c0099d"}
           roomId={"fff875f7-4072-4967-9fa5-f026d1d94332"}
         />
       </SafeAreaView>
