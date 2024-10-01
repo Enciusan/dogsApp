@@ -11,11 +11,11 @@ export default function DogScreen() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isAccountInformationLoaded, setIsAccountInformationLoaded] = useState<boolean>(false);
   const [appUsers, setAppUsers] = useState<Array<Record<any, any>>>([]);
+  const [accountInfo, setAccountInfo] = useState<Record<any, any> | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isWSConnected, setIsWSConnected] = useState<boolean>(false);
   const serveWSUrl = `ws://192.168.100.67:8080/ws?sessionId=${sessionId}`;
   const webSocket = useRef(null);
-  // console.log("session", session);
 
   // TODO - connect multiple users.
   // const { data, error } = supabase.auth.signInWithPassword({
@@ -30,13 +30,14 @@ export default function DogScreen() {
     supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
-    // console.log("session", session.user.);
   }, []);
 
   useEffect(() => {
-    getAllAccounts()
+    getAvailableProfiles();
+    getCurrentAcountInformation()
       .then((r) => r)
-      .catch((e) => e);
+      .catch((e) => console.error(e));
+    console.log("Account info", appUsers);
 
     setSessionId(extractSessionId(session));
   }, [session]);
@@ -45,7 +46,6 @@ export default function DogScreen() {
     if (!webSocket.current && sessionId !== null && sessionId !== undefined) {
       webSocket.current = new WebSocket(serveWSUrl);
       console.log("WebSocket URL:", serveWSUrl);
-      
 
       webSocket.current.onopen = () => {
         console.log("WebSocket Connected");
@@ -69,64 +69,80 @@ export default function DogScreen() {
     };
   }, [webSocket, sessionId]);
 
-  const getAllAccounts = useCallback(async () => {
-    setIsAccountInformationLoaded(false);
+  const getCurrentAcountInformation = useCallback(async () => {
     if (session) {
       await supabase
         .from("profiles")
         .select("*")
-        .neq("id", session?.user?.id)
+        .eq("id", session?.user?.id)
         .then(({ data, error }) => {
           if (error) {
             console.error("error fetching", error);
           } else {
-            // console.log("Fetched accounts:", data);
-            setAppUsers(data || []);
-            setIsAccountInformationLoaded(true);
+            // console.log("Fetched account:", user);
+
+            setAccountInfo(data);
           }
         });
     }
   }, [session]);
 
-  const handleSwipe = (direction: "left" | "right", user1Id?: string, user2Id?: string, username?: string) => {
+  const getAvailableProfiles = useCallback(async () => {
+    setIsAccountInformationLoaded(false);
+    if (session) {
+      try {
+        // Fetch liked user IDs
+        const { data: likeData, error: likeError } = await supabase
+          .from("likes")
+          .select("liked_user_id")
+          .eq("user_id", session.user.id);
+
+        if (likeError) throw likeError;
+
+        // Extract liked user IDs and format them for the 'not in' clause
+        const likedUserIds = likeData.map((item) => item.liked_user_id);
+        const formattedLikedUserIds = likedUserIds.length > 0 ? `(${likedUserIds.join(",")})` : "(null)";
+        console.log("Formatted liked user IDs:", formattedLikedUserIds);
+
+        // Fetch available profiles
+        const { data: profiles, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .not("id", "in", formattedLikedUserIds)
+          .not("id", "eq", session.user.id);
+
+        if (profileError) throw profileError;
+
+        console.log("Fetched accounts:", profiles);
+        setAppUsers(profiles || []);
+      } catch (error) {
+        console.error("Error fetching profiles:", error);
+      } finally {
+        setIsAccountInformationLoaded(true);
+      }
+    }
+  }, [session, appUsers]);
+
+  const handleSwipe = (direction: "left" | "right", user2Id?: string, roomName?: string) => {
     console.log(`Swiped ${direction} on ${appUsers[currentIndex].username}`);
     setCurrentIndex((prevIndex) => prevIndex + 1);
     if (direction === "right") {
-      handleLike(user1Id, user2Id, username);
+      handleLike(user2Id, roomName);
     }
   };
 
   const currentProfile = appUsers[currentIndex];
 
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     if (session) {
-  //       const { data, error } = await supabase.auth.getUser();
-  //       // Handle data and error as needed
-  //       // console.log("Current profile", data);
-  //     }
-  //   };
-  
-  //   fetchUserData();
-  // }, [session]);
-  // console.log("Current profile", data);
-
   const handleLike = useCallback(
-    (user1Id?: string, user2Id?: string, username?: string) => {
-      console.group();
-      console.log("ws", webSocket);
-      console.log("session", session);
-      console.log("currentProfile", currentProfile);
-      console.groupEnd();
+    (user2Id?: string, roomName?: string) => {
       if (webSocket) {
         const message = {
           type: "like_person",
           content: {
             likedUserId: user2Id,
-            roomName: "Test",
+            roomName: roomName,
             action: "like",
           },
-          
         };
         console.log("Sending message:", JSON.stringify(message));
         webSocket.current.send(JSON.stringify(message));
@@ -134,7 +150,6 @@ export default function DogScreen() {
     },
     [webSocket]
   );
-
 
   return (
     <SafeAreaView className="h-full bg-[#0E1514]">
@@ -157,7 +172,8 @@ export default function DogScreen() {
             <FontAwesome name="close" size={32} color="#f87171" />
           </View>
         </Pressable>
-        <Pressable onPress={() => handleSwipe("right", session.user.id, currentProfile.id, `${currentProfile.username}`)}>
+        <Pressable
+          onPress={() => handleSwipe("right", currentProfile.id, `${accountInfo.dog_name}-${currentProfile.dog_name}`)}>
           <View className="w-16 h-16 rounded-full bg-[#263b44] flex justify-center items-center">
             <AntDesign name="heart" size={32} color="#34d399" />
           </View>

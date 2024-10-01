@@ -59,6 +59,7 @@ export const extractSessionId = (session: Session | null): string | undefined =>
         const payload = sessionTokenParts[1];
         const decodedPayload = atob(payload);
         const token = JSON.parse(decodedPayload);
+        
         return token.session_id;
       }
     } catch {

@@ -27,7 +27,7 @@ export default function SwipeableCard({ url, onSwipe, dogName, username }: Props
     })
     .onEnd(() => {
       if (Math.abs(translateX.value) > SWIPE_THRESHOLD) {
-        translateX.value = withSpring(Math.sign(translateX.value) * SCREEN_WIDTH + 50, {}, () =>
+        translateX.value = withSpring(translateX.value > 0 ? Math.sign(translateX.value) * SCREEN_WIDTH + 50 : Math.sign(translateX.value) * SCREEN_WIDTH - 50, {}, () =>
           runOnJS(onSwipe)(translateX.value > 0 ? "right" : "left")
         );
       } else {
